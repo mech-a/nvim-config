@@ -1,49 +1,12 @@
---[[
+-- Avoid Race Conditions with NvimTree
+vim.g.loaded_netrw = 1
+vim.g.loaded_netrwPlugin = 1
 
-=====================================================================
-==================== READ THIS BEFORE CONTINUING ====================
-=====================================================================
-
-Kickstart.nvim is *not* a distribution.
-
-Kickstart.nvim is a template for your own configuration.
-  The goal is that you can read every line of code, top-to-bottom, and understand
-  what your configuration is doing.
-
-  Once you've done that, you should start exploring, configuring and tinkering to
-  explore Neovim!
-
-  If you don't know anything about Lua, I recommend taking some time to read through
-  a guide. One possible example:
-  - https://learnxinyminutes.com/docs/lua/
-
-  And then you can explore or search through `:help lua-guide`
-
-
-Kickstart Guide:
-
-I have left several `:help X` comments throughout the init.lua
-You should run that command and read that help section for more information.
-
-In addition, I have some `NOTE:` items throughout the file.
-These are for you, the reader to help understand what is happening. Feel free to delete
-them once you know what you're doing, but they should serve as a guide for when you
-are first encountering a few different constructs in your nvim config.
-
-I hope you enjoy your Neovim journey,
-- TJ
-
-P.S. You can delete this when you're done too. It's your config now :)
---]]
-
--- Set <space> as the leader key
--- See `:help mapleader`
---  NOTE: Must happen before plugins are required (otherwise wrong leader will be used)
+-- Leader key mapped to space
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
 -- Install package manager
---    https://github.com/folke/lazy.nvim
 --    `:help lazy.nvim.txt` for more info
 local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
 if not vim.loop.fs_stat(lazypath) then
@@ -58,11 +21,7 @@ if not vim.loop.fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
--- NOTE: Here is where you install your plugins.
---  You can configure plugins using the `config` key.
---
---  You can also configure plugins after the setup call,
---    as they will be available in your neovim runtime.
+-- Plugin Setup
 require('lazy').setup({
   -- NOTE: First, some plugins that don't require any configuration
 
@@ -72,6 +31,16 @@ require('lazy').setup({
 
   -- Detect tabstop and shiftwidth automatically
   'tpope/vim-sleuth',
+
+  -- File Explorer
+  { 'nvim-tree/nvim-tree.lua', dependencies = { 'nvim-tree/nvim-web-devicons' }, opts = {}, },
+
+  { -- Allow for jk/kj/jj escaping more cleanly 
+    'nvim-zh/better-escape.vim',
+    config = function()
+      vim.go.better_escape_shortcut = 'jk'
+    end,
+  },
 
   -- NOTE: This is where your plugins related to LSP can be installed.
   --  The configuration is done below. Search for lspconfig to find it below.
@@ -84,7 +53,7 @@ require('lazy').setup({
 
       -- Useful status updates for LSP
       -- NOTE: `opts = {}` is the same as calling `require('fidget').setup({})`
-      { 'j-hui/fidget.nvim', opts = {} },
+      -- { 'j-hui/fidget.nvim', opts = {} },
 
       -- Additional lua configuration, makes nvim stuff amazing!
       'folke/neodev.nvim',
@@ -112,11 +81,11 @@ require('lazy').setup({
     },
   },
 
-  { -- Theme inspired by Atom
-    'navarasu/onedark.nvim',
+  { -- Much better theme
+    'folke/tokyonight.nvim',
     priority = 1000,
     config = function()
-      vim.cmd.colorscheme 'onedark'
+      vim.cmd.colorscheme 'tokyonight-storm'
     end,
   },
 
@@ -125,10 +94,11 @@ require('lazy').setup({
     -- See `:help lualine.txt`
     opts = {
       options = {
-        icons_enabled = false,
-        theme = 'onedark',
-        component_separators = '|',
-        section_separators = '',
+        -- icons_enabled = false,
+        theme = 'tokyonight',
+        disabled_filetypes = { 'lazy', 'NvimTree', },
+        -- component_separators = '|',
+        -- section_separators = '',
       },
     },
   },
@@ -192,13 +162,17 @@ require('lazy').setup({
 -- [[ Setting options ]]
 -- See `:help vim.o`
 
--- Set highlight on search
+-- Edit Mappings
+vim.keymap.set('n', '0', '^') -- First non-space character is now 0, first character is now ^
+vim.keymap.set('n', '^', '0')
+
+-- Set highlight on search to false
 vim.o.hlsearch = false
 
 -- Make line numbers default
 vim.wo.number = true
 
--- Enable mouse mode
+-- Enable mouse mode to act as all
 vim.o.mouse = 'a'
 
 -- Sync clipboard between OS and Neovim.
@@ -230,6 +204,18 @@ vim.o.completeopt = 'menuone,noselect'
 -- NOTE: You should make sure your terminal supports this
 vim.o.termguicolors = true
 
+-- Better indenting
+vim.o.smartindent = true -- Autoindent is true by default
+vim.o.wrap = true
+
+-- UI
+vim.o.scrolloff = 7         -- Set 7 lines to the cursor - when moving vertically using j/k
+vim.o.cmdheight = 1         -- Height of the command bar
+vim.o.lazyredraw = true     -- Don't redraw while executing macros (performance)
+
+-- For creating most keybinds
+local wk = require('which-key')
+
 -- [[ Basic Keymaps ]]
 
 -- Keymaps for better default experience
@@ -239,6 +225,19 @@ vim.keymap.set({ 'n', 'v' }, '<Space>', '<Nop>', { silent = true })
 -- Remap for dealing with word wrap
 vim.keymap.set('n', 'k', "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
 vim.keymap.set('n', 'j', "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
+
+wk.register({
+  -- NvimTree
+  ["<Leader>e"] = {"<cmd>NvimTreeToggle<cr>", "Toggle file [e]xplorer"},
+  -- Meta
+  ["<Leader>q"] = {"<cmd>e $MYVIMRC<cr>", "Edit nvim conf"},
+  -- Window Movement
+  ["<Leader>h"] = {"<C-W>h", "Move to left window"},
+  ["<Leader>j"] = {"<C-W>j", "Move down"},
+  ["<Leader>k"] = {"<C-W>k", "Move up"},
+  ["<Leader>l"] = {"<C-W>l", "Move right"},
+})
+
 
 -- [[ Highlight on yank ]]
 -- See `:help vim.highlight.on_yank()`
@@ -267,22 +266,28 @@ require('telescope').setup {
 -- Enable telescope fzf native, if installed
 pcall(require('telescope').load_extension, 'fzf')
 
--- See `:help telescope.builtin`
-vim.keymap.set('n', '<leader>?', require('telescope.builtin').oldfiles, { desc = '[?] Find recently opened files' })
-vim.keymap.set('n', '<leader><space>', require('telescope.builtin').buffers, { desc = '[ ] Find existing buffers' })
-vim.keymap.set('n', '<leader>/', function()
-  -- You can pass additional configuration to telescope to change theme, layout, etc.
-  require('telescope.builtin').current_buffer_fuzzy_find(require('telescope.themes').get_dropdown {
-    winblend = 10,
-    previewer = false,
-  })
-end, { desc = '[/] Fuzzily search in current buffer' })
 
-vim.keymap.set('n', '<leader>sf', require('telescope.builtin').find_files, { desc = '[S]earch [F]iles' })
-vim.keymap.set('n', '<leader>sh', require('telescope.builtin').help_tags, { desc = '[S]earch [H]elp' })
-vim.keymap.set('n', '<leader>sw', require('telescope.builtin').grep_string, { desc = '[S]earch current [W]ord' })
-vim.keymap.set('n', '<leader>sg', require('telescope.builtin').live_grep, { desc = '[S]earch by [G]rep' })
-vim.keymap.set('n', '<leader>sd', require('telescope.builtin').diagnostics, { desc = '[S]earch [D]iagnostics' })
+local tb = require('telescope.builtin')
+wk.register({
+  ["?"] = { tb.oldfiles, "Find recently opened files" },
+  [" "] = { tb.buffers, "Find existing buffers" },
+  ["/"] = { function()
+   tb.current_buffer_fuzzy_find(require('telescope.themes').get_dropdown {
+      winblend = 10,
+      previewer = false,
+    })
+    end, "Search in current buffer",
+  },
+
+  s = {
+    name = "+Search",
+    f = { tb.find_files, "Search [f]iles" },
+    h = { tb.help_tags, "Search nvim [h]elp" },
+    w = { tb.grep_string, "Search current [w]ord" },
+    g = { tb.live_grep, "Search by live [g]rep" },
+    d = { tb.diagnostics, "Search LSP [d]iagnostics" },
+  },
+}, { prefix = "<leader>" })
 
 -- [[ Configure Treesitter ]]
 -- See `:help nvim-treesitter`
@@ -290,8 +295,8 @@ require('nvim-treesitter.configs').setup {
   -- Add languages to be installed here that you want installed for treesitter
   ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'rust', 'tsx', 'typescript', 'help', 'vim' },
 
-  -- Autoinstall languages that are not installed. Defaults to false (but you can change for yourself!)
-  auto_install = false,
+  -- Autoinstall languages that are not installed 
+  auto_install = true,
 
   highlight = { enable = true },
   indent = { enable = true, disable = { 'python' } },
@@ -373,27 +378,30 @@ local on_attach = function(_, bufnr)
     vim.keymap.set('n', keys, func, { buffer = bufnr, desc = desc })
   end
 
-  nmap('<leader>rn', vim.lsp.buf.rename, '[R]e[n]ame')
-  nmap('<leader>ca', vim.lsp.buf.code_action, '[C]ode [A]ction')
+  wk.register({
+    ["<leader>rn"] = { vim.lsp.buf.rename, "LSP: [R]e[n]ame object" },
+    ["<leader>ca"] = { vim.lsp.buf.code_action, "LSP: [C]ode [A]ction" },
+    ["<leader>sr"] = { tb.lsp_references, "LSP: Search under-cursor [r]eferences" },
+    ["<leader>sd"] = { tb.lsp_document_symbols, "LSP: Search [d]ocument symbols" },
+    ["<leader>sv"] = { tb.lsp_workspace_symbols, "LSP: Search [w]orkspace symbols" },
+    ["<leader>D"] = { vim.lsp.buf.type_definition, "LSP: Type [D]efinition" },
+    g = {
+      d = { vim.lsp.buf.definition, 'LSP: Goto [d]efinition' },
+      i = { vim.lsp.buf.implementation, 'LSP: Goto [i]mplementation' },
+      D = { vim.lsp.buf.declaration, 'LSP: Goto [D}eclaration' },
+    },
+    ["<leader>w"] = {
+      name = "+LSP: Workspace",
+      a = { vim.lsp.buf.add_workspace_folder, "LSP: Workspace [a]dd folder" },
+      r = { vim.lsp.buf.remove_workspace_folder, "LSP: Workspace [r]emove folder" },
+      l = { function() print(vim.inspect(vim.lsp.buf.list_workspace_folders())) end, "LSP: Workspace [l]ist folders" },
+    },
 
-  nmap('gd', vim.lsp.buf.definition, '[G]oto [D]efinition')
-  nmap('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
-  nmap('gI', vim.lsp.buf.implementation, '[G]oto [I]mplementation')
-  nmap('<leader>D', vim.lsp.buf.type_definition, 'Type [D]efinition')
-  nmap('<leader>ds', require('telescope.builtin').lsp_document_symbols, '[D]ocument [S]ymbols')
-  nmap('<leader>ws', require('telescope.builtin').lsp_dynamic_workspace_symbols, '[W]orkspace [S]ymbols')
+  }, {buffer = bufnr})
 
   -- See `:help K` for why this keymap
   nmap('K', vim.lsp.buf.hover, 'Hover Documentation')
   nmap('<C-k>', vim.lsp.buf.signature_help, 'Signature Documentation')
-
-  -- Lesser used LSP functionality
-  nmap('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
-  nmap('<leader>wa', vim.lsp.buf.add_workspace_folder, '[W]orkspace [A]dd Folder')
-  nmap('<leader>wr', vim.lsp.buf.remove_workspace_folder, '[W]orkspace [R]emove Folder')
-  nmap('<leader>wl', function()
-    print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
-  end, '[W]orkspace [L]ist Folders')
 
   -- Create a command `:Format` local to the LSP buffer
   vim.api.nvim_buf_create_user_command(bufnr, 'Format', function(_)
@@ -409,9 +417,9 @@ end
 local servers = {
   -- clangd = {},
   -- gopls = {},
-  -- pyright = {},
-  -- rust_analyzer = {},
-  -- tsserver = {},
+  pyright = {},
+  rust_analyzer = {},
+  tsserver = {},
 
   lua_ls = {
     Lua = {
@@ -426,7 +434,7 @@ require('neodev').setup()
 
 -- nvim-cmp supports additional completion capabilities, so broadcast that to servers
 local capabilities = vim.lsp.protocol.make_client_capabilities()
-capabilities = require('cmp_nvim_lsp').default_capabilities(capabilities)
+-- capabilities = require('cmp_nvim_lsp').default_capabilities(capabilities)
 
 -- Setup mason so it can manage external tooling
 require('mason').setup()
@@ -449,7 +457,7 @@ mason_lspconfig.setup_handlers {
 }
 
 -- nvim-cmp setup
-local cmp = require 'cmp'
+--[[ local cmp = require 'cmp'
 local luasnip = require 'luasnip'
 
 luasnip.config.setup {}
@@ -491,7 +499,7 @@ cmp.setup {
     { name = 'nvim_lsp' },
     { name = 'luasnip' },
   },
-}
+} ]]
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
