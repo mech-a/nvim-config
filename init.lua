@@ -23,8 +23,6 @@ vim.opt.rtp:prepend(lazypath)
 
 -- Plugin Setup
 require('lazy').setup({
-  -- NOTE: First, some plugins that don't require any configuration
-
   -- Git related plugins
   'tpope/vim-fugitive',
   'tpope/vim-rhubarb',
@@ -42,8 +40,6 @@ require('lazy').setup({
     end,
   },
 
-  -- NOTE: This is where your plugins related to LSP can be installed.
-  --  The configuration is done below. Search for lspconfig to find it below.
   { -- LSP Configuration & Plugins
     'neovim/nvim-lspconfig',
     dependencies = {
@@ -53,7 +49,7 @@ require('lazy').setup({
 
       -- Useful status updates for LSP
       -- NOTE: `opts = {}` is the same as calling `require('fidget').setup({})`
-      -- { 'j-hui/fidget.nvim', opts = {} },
+      { 'j-hui/fidget.nvim', opts = {} },
 
       -- Additional lua configuration, makes nvim stuff amazing!
       'folke/neodev.nvim',
@@ -96,9 +92,21 @@ require('lazy').setup({
       options = {
         -- icons_enabled = false,
         theme = 'tokyonight',
-        disabled_filetypes = { 'lazy', 'NvimTree', },
+        disabled_filetypes = { 'lazy', 'NvimTree', 'help', },
         -- component_separators = '|',
         -- section_separators = '',
+      },
+    },
+  },
+
+  { -- Buffer line 
+    'akinsho/bufferline.nvim',
+    -- tag = 'v3.5.0',
+    version = 'v3',
+    opts = {
+      options = {
+        -- separator_style = 'slant',
+        diagnostics = "nvim_lsp",
       },
     },
   },
@@ -113,8 +121,14 @@ require('lazy').setup({
     },
   },
 
+  { -- Todo, Note, Fix, Warning, Perf, Hack highlighting 
+    'folke/todo-comments.nvim',
+    dependencies = { 'nvim-lua/plenary.nvim' },
+    opts = { },
+  },
+
   -- "gc" to comment visual regions/lines
-  { 'numToStr/Comment.nvim', opts = {} },
+  { 'numToStr/Comment.nvim', opts = {} }, -- TODO do insert mappings for commenting
 
   -- Fuzzy Finder (files, lsp, etc)
   { 'nvim-telescope/telescope.nvim', version = '*', dependencies = { 'nvim-lua/plenary.nvim' } },
@@ -124,8 +138,6 @@ require('lazy').setup({
   -- requirements installed.
   {
     'nvim-telescope/telescope-fzf-native.nvim',
-    -- NOTE: If you are having trouble with this installation,
-    --       refer to the README for telescope-fzf-native for more instructions.
     build = 'make',
     cond = function()
       return vim.fn.executable 'make' == 1
@@ -286,6 +298,7 @@ wk.register({
     w = { tb.grep_string, "Search current [w]ord" },
     g = { tb.live_grep, "Search by live [g]rep" },
     d = { tb.diagnostics, "Search LSP [d]iagnostics" },
+    t = { "<cmd>TodoTelescope keywords=TODO,fix<cr>", "Search [t]odos"},
   },
 }, { prefix = "<leader>" })
 
@@ -434,7 +447,7 @@ require('neodev').setup()
 
 -- nvim-cmp supports additional completion capabilities, so broadcast that to servers
 local capabilities = vim.lsp.protocol.make_client_capabilities()
--- capabilities = require('cmp_nvim_lsp').default_capabilities(capabilities)
+capabilities = require('cmp_nvim_lsp').default_capabilities(capabilities)
 
 -- Setup mason so it can manage external tooling
 require('mason').setup()
@@ -467,7 +480,7 @@ cmp.setup {
   formatting = {
     format = lspkind.cmp_format({
       mode = "symbol_text",
-      maxwidth = 30,
+      maxwidth = 50,
       ellipsis_char = "…",
     })
   },
