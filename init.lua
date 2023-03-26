@@ -56,6 +56,10 @@ require('lazy').setup({
     },
   },
 
+  { -- Rust Tooling
+    'simrat39/rust-tools.nvim'
+  },
+
   { -- Autocompletion
     'hrsh7th/nvim-cmp',
     dependencies = { 'hrsh7th/cmp-nvim-lsp', 'L3MON4D3/LuaSnip', 'saadparwaiz1/cmp_luasnip', 'onsails/lspkind.nvim' },
@@ -92,9 +96,9 @@ require('lazy').setup({
       options = {
         -- icons_enabled = false,
         theme = 'tokyonight',
-        disabled_filetypes = { 'lazy', 'NvimTree', 'help', },
-        -- component_separators = '|',
-        -- section_separators = '',
+        disabled_filetypes = { 'lazy', 'NvimTree', },
+        component_separators = '|',
+        section_separators = '',
       },
     },
   },
@@ -372,7 +376,7 @@ require('nvim-treesitter.configs').setup {
 vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, { desc = "Go to previous diagnostic message" })
 vim.keymap.set('n', ']d', vim.diagnostic.goto_next, { desc = "Go to next diagnostic message" })
 vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, { desc = "Open floating diagnostic message" })
-vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = "Open diagnostics list" })
+vim.keymap.set('n', '<leader>l', vim.diagnostic.setloclist, { desc = "Open diagnostics list" })
 
 -- LSP settings.
 --  This function gets run when an LSP connects to a particular buffer.
@@ -396,7 +400,7 @@ local on_attach = function(_, bufnr)
     ["<leader>ca"] = { vim.lsp.buf.code_action, "LSP: [C]ode [A]ction" },
     ["<leader>sr"] = { tb.lsp_references, "LSP: Search under-cursor [r]eferences" },
     ["<leader>sd"] = { tb.lsp_document_symbols, "LSP: Search [d]ocument symbols" },
-    ["<leader>sv"] = { tb.lsp_workspace_symbols, "LSP: Search [w]orkspace symbols" },
+    ["<leader>sw"] = { tb.lsp_workspace_symbols, "LSP: Search [w]orkspace symbols" },
     ["<leader>D"] = { vim.lsp.buf.type_definition, "LSP: Type [D]efinition" },
     g = {
       d = { vim.lsp.buf.definition, 'LSP: Goto [d]efinition' },
@@ -428,10 +432,10 @@ end
 --  Add any additional override configuration in the following tables. They will be passed to
 --  the `settings` field of the server config. You must look up that documentation yourself.
 local servers = {
-  -- clangd = {},
+  clangd = {},
   -- gopls = {},
   pyright = {},
-  rust_analyzer = {},
+  -- rust_analyzer = {},
   tsserver = {},
 
   lua_ls = {
@@ -468,6 +472,20 @@ mason_lspconfig.setup_handlers {
     }
   end,
 }
+
+-- Seperate Rust Tools 
+local rt = require("rust-tools")
+
+rt.setup({
+  server = {
+    on_attach = function(_, bufnr)
+      -- Hover actions
+      vim.keymap.set("n", "<C-space>", rt.hover_actions.hover_actions, { buffer = bufnr })
+      -- Code action groups
+      vim.keymap.set("n", "<Leader>a", rt.code_action_group.code_action_group, { buffer = bufnr })
+    end,
+  },
+})
 
 -- nvim-cmp setup
 local cmp = require 'cmp'
