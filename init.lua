@@ -40,6 +40,17 @@ require('lazy').setup({
     end,
   },
 
+  { -- Very fast movement 
+    -- s__ for forward, S__ for backwards, and gs__ for diff windows
+    -- TODO: setup highlight colors, can't see very well 
+    -- TODO need to change LeapLabelPrimary and optionally LeapBackdrop
+    'ggandor/leap.nvim',
+    dependencies = { 'tpope/vim-repeat' },
+    config = function()
+      require('leap').add_default_mappings()
+    end
+  },
+
   { -- LSP Configuration & Plugins
     'neovim/nvim-lspconfig',
     dependencies = {
@@ -82,7 +93,7 @@ require('lazy').setup({
     },
   },
 
-  { -- Much better theme
+  { -- Excellent theme
     'folke/tokyonight.nvim',
     priority = 1000,
     config = function()
@@ -133,7 +144,7 @@ require('lazy').setup({
   },
 
   -- "gc" to comment visual regions/lines
-  { 'numToStr/Comment.nvim', opts = {} }, -- TODO do insert mappings for commenting
+  { 'numToStr/Comment.nvim', opts = {} }, -- TODO: do insert mappings for commenting
 
   -- Fuzzy Finder (files, lsp, etc)
   { 'nvim-telescope/telescope.nvim', version = '*', dependencies = { 'nvim-lua/plenary.nvim' } },
@@ -162,10 +173,12 @@ require('lazy').setup({
   { -- Quick documentation
     'danymat/neogen',
     dependencies='nvim-treesitter/nvim-treesitter',
-    config=true,
-    opts = {
-      snippet_engine='luasnip', -- Currently using luasnip
-    },
+    config = function()
+      require('neogen').setup({
+        snippet_engine='luasnip',
+      })
+      vim.keymap.set('n', '<leader>d', require('neogen').generate, { desc='Generate [d]ocumentation' })
+    end
   },
 
   -- NOTE: Next Step on Your Neovim Journey: Add/Configure additional "plugins" for kickstart
@@ -296,7 +309,6 @@ pcall(require('telescope').load_extension, 'fzf')
 local tb = require('telescope.builtin')
 wk.register({
   ["?"] = { tb.oldfiles, "Find recently opened files" },
-  [" "] = { tb.buffers, "Find existing buffers" },
   ["/"] = { function()
    tb.current_buffer_fuzzy_find(require('telescope.themes').get_dropdown {
       winblend = 10,
@@ -308,10 +320,11 @@ wk.register({
   s = {
     name = "+Search",
     f = { tb.find_files, "Search [f]iles" },
+    b = { tb.buffers, "Search for [b]uffer" },
     h = { tb.help_tags, "Search nvim [h]elp" },
     w = { tb.grep_string, "Search current [w]ord" },
     g = { tb.live_grep, "Search by live [g]rep" },
-    d = { tb.diagnostics, "Search LSP [d]iagnostics" },
+    x = { tb.diagnostics, "Search LSP diagnostics" },
     t = { "<cmd>TodoTelescope keywords=TODO,fix<cr>", "Search [t]odos"},
   },
 }, { prefix = "<leader>" })
@@ -382,15 +395,11 @@ require('nvim-treesitter.configs').setup {
   },
 }
 
-wk.register({
-  ["<leader>d"] = {require('neogen').generate, "Generate [d]ocumentation" },
-})
-
 -- Diagnostic keymaps
 vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, { desc = "Go to previous diagnostic message" })
 vim.keymap.set('n', ']d', vim.diagnostic.goto_next, { desc = "Go to next diagnostic message" })
-vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, { desc = "Open floating diagnostic message" })
-vim.keymap.set('n', '<leader>x', vim.diagnostic.setloclist, { desc = "Open diagnostics list" })
+vim.keymap.set('n', '<leader>x', vim.diagnostic.open_float, { desc = "Open floating diagnostic message" })
+vim.keymap.set('n', '<leader>X', vim.diagnostic.setloclist, { desc = "Open diagnostics list" })
 
 -- LSP settings.
 --  This function gets run when an LSP connects to a particular buffer.
@@ -414,7 +423,7 @@ local on_attach = function(_, bufnr)
     ["<leader>ca"] = { vim.lsp.buf.code_action, "LSP: [C]ode [A]ction" },
     ["<leader>sr"] = { tb.lsp_references, "LSP: Search under-cursor [r]eferences" },
     ["<leader>sd"] = { tb.lsp_document_symbols, "LSP: Search [d]ocument symbols" },
-    ["<leader>sw"] = { tb.lsp_workspace_symbols, "LSP: Search [w]orkspace symbols" },
+    ["<leader>sw"] = { tb.lsp_workspace_symbols, "LSP: Search [w]orkspace symbols" }, -- TODO: fix, doesn't currently work
     ["<leader>D"] = { vim.lsp.buf.type_definition, "LSP: Type [D]efinition" },
     g = {
       d = { vim.lsp.buf.definition, 'LSP: Goto [d]efinition' },
@@ -429,6 +438,10 @@ local on_attach = function(_, bufnr)
     },
 
   }, {buffer = bufnr})
+
+  wk.register({
+    [" "] = { tb.lsp_document_symbols, "LSP: Search document symbols" },
+  },{prefix="<leader>"})
 
   -- See `:help K` for why this keymap
   nmap('K', vim.lsp.buf.hover, 'Hover Documentation')
@@ -493,9 +506,9 @@ local rt = require("rust-tools")
 rt.setup({
   server = {
     on_attach = function(_, bufnr)
-      -- Hover actions
+      -- Hover actions TODO: overlapping with treesitter and maybe cmp?
       vim.keymap.set("n", "<C-space>", rt.hover_actions.hover_actions, { buffer = bufnr })
-      -- Code action groups
+      -- Code action groups TODO: overlapping with treesitter
       vim.keymap.set("n", "<Leader>a", rt.code_action_group.code_action_group, { buffer = bufnr })
     end,
   },
