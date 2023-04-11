@@ -42,8 +42,7 @@ require('lazy').setup({
 
   { -- Very fast movement 
     -- s__ for forward, S__ for backwards, and gs__ for diff windows
-    -- TODO: setup highlight colors, can't see very well 
-    -- TODO need to change LeapLabelPrimary and optionally LeapBackdrop
+    -- TODO: setup tokyonight highlight colors, can't see very well
     'ggandor/leap.nvim',
     dependencies = { 'tpope/vim-repeat' },
     config = function()
@@ -65,6 +64,11 @@ require('lazy').setup({
       -- Additional lua configuration, makes nvim stuff amazing!
       'folke/neodev.nvim',
     },
+  },
+
+  { -- Tree-view of LSP symbols
+    'simrat39/symbols-outline.nvim',
+    opts = {},
   },
 
   { -- Rust Tooling
@@ -95,9 +99,26 @@ require('lazy').setup({
 
   { -- Excellent theme
     'folke/tokyonight.nvim',
+    enabled=false,
     priority = 1000,
     config = function()
       vim.cmd.colorscheme 'tokyonight-night'
+    end,
+  },
+
+  { -- Alternate theme
+    'catppuccin/nvim',
+    name = 'catppuccin',
+    priority = 1000,
+    config = function()
+      require("catppuccin").setup({
+        show_end_of_buffer=true,
+        term_colors=true,
+        dim_inactive = {
+          enabled=true,
+        }
+      })
+      vim.cmd.colorscheme 'catppuccin'
     end,
   },
 
@@ -107,7 +128,7 @@ require('lazy').setup({
     opts = {
       options = {
         -- icons_enabled = false,
-        theme = 'tokyonight',
+        theme = 'auto',
         disabled_filetypes = { 'lazy', 'NvimTree', },
         component_separators = '|',
         section_separators = '',
@@ -423,8 +444,9 @@ local on_attach = function(_, bufnr)
     ["<leader>ca"] = { vim.lsp.buf.code_action, "LSP: [C]ode [A]ction" },
     ["<leader>sr"] = { tb.lsp_references, "LSP: Search under-cursor [r]eferences" },
     ["<leader>sd"] = { tb.lsp_document_symbols, "LSP: Search [d]ocument symbols" },
-    ["<leader>sw"] = { tb.lsp_workspace_symbols, "LSP: Search [w]orkspace symbols" }, -- TODO: fix, doesn't currently work
-    ["<leader>D"] = { vim.lsp.buf.type_definition, "LSP: Type [D]efinition" },
+    ["<leader>sw"] = { tb.lsp_dynamic_workspace_symbols, "LSP: Search [w]orkspace symbols" },
+    ["<leader>y"]  = { "<cmd>SymbolsOutline<cr>", "LSP: Toggle s[y]mbol tree" },
+    ["<leader>D"]  = { vim.lsp.buf.type_definition, "LSP: Type [D]efinition" },
     g = {
       d = { vim.lsp.buf.definition, 'LSP: Goto [d]efinition' },
       i = { vim.lsp.buf.implementation, 'LSP: Goto [i]mplementation' },
@@ -543,6 +565,7 @@ cmp.setup {
       select = true,
     },
     ['<Tab>'] = cmp.mapping(function(fallback)
+      -- TODO: figure out how to cancel snippet so tab works better
       if cmp.visible() then
         cmp.select_next_item()
       elseif luasnip.expand_or_jumpable() then
