@@ -24,8 +24,8 @@ vim.opt.rtp:prepend(lazypath)
 -- Plugin Setup
 require('lazy').setup({
   -- Git related plugins
-  'tpope/vim-fugitive',
-  'tpope/vim-rhubarb',
+  { 'tpope/vim-fugitive', lazy=true, },
+  { 'tpope/vim-rhubarb', lazy=true, },
 
   -- Detect tabstop and shiftwidth automatically
   'tpope/vim-sleuth',
@@ -48,6 +48,11 @@ require('lazy').setup({
     config = function()
       require('leap').add_default_mappings()
     end
+  },
+
+  { -- More sensible word movement
+    -- TODO: doesn't work
+    'chrisgrieser/nvim-spider',
   },
 
   { -- LSP Configuration & Plugins
@@ -81,6 +86,12 @@ require('lazy').setup({
     dependencies = { 'hrsh7th/cmp-nvim-lsp', 'L3MON4D3/LuaSnip', 'saadparwaiz1/cmp_luasnip', 'onsails/lspkind.nvim' },
   },
 
+  { -- Autopairs // TODO: add <>
+    'windwp/nvim-autopairs',
+    dependencies='hrsh7th/nvim-cmp',
+    opts={},
+  },
+
   -- Useful plugin to show you pending keybinds.
   { 'folke/which-key.nvim', opts = {} },
   { -- Adds git releated signs to the gutter, as well as utilities for managing changes
@@ -100,7 +111,7 @@ require('lazy').setup({
   { -- Excellent theme
     'folke/tokyonight.nvim',
     enabled=false,
-    priority = 1000,
+    priority=1000,
     config = function()
       vim.cmd.colorscheme 'tokyonight-night'
     end,
@@ -112,7 +123,6 @@ require('lazy').setup({
     priority = 1000,
     config = function()
       require("catppuccin").setup({
-        show_end_of_buffer=true,
         term_colors=true,
         dim_inactive = {
           enabled=true,
@@ -168,7 +178,7 @@ require('lazy').setup({
   { 'numToStr/Comment.nvim', opts = {} }, -- TODO: do insert mappings for commenting
 
   -- Fuzzy Finder (files, lsp, etc)
-  { 'nvim-telescope/telescope.nvim', version = '*', dependencies = { 'nvim-lua/plenary.nvim' } },
+  { 'nvim-telescope/telescope.nvim', tag='0.1.1', dependencies = { 'nvim-lua/plenary.nvim' } },
 
   -- Fuzzy Finder Algorithm which requires local dependencies to be built.
   -- Only load if `make` is available. Make sure you have the system
@@ -193,6 +203,7 @@ require('lazy').setup({
 
   { -- Quick documentation
     'danymat/neogen',
+    lazy=true,
     dependencies='nvim-treesitter/nvim-treesitter',
     config = function()
       require('neogen').setup({
@@ -261,7 +272,7 @@ vim.o.timeoutlen = 300
 -- Set completeopt to have a better completion experience
 vim.o.completeopt = 'menuone,noselect'
 
--- NOTE: You should make sure your terminal supports this
+-- Colors
 vim.o.termguicolors = true
 
 -- Better indenting
@@ -463,7 +474,7 @@ local on_attach = function(_, bufnr)
 
   wk.register({
     [" "] = { tb.lsp_document_symbols, "LSP: Search document symbols" },
-  },{prefix="<leader>"})
+  }, {prefix="<leader>"})
 
   -- See `:help K` for why this keymap
   nmap('K', vim.lsp.buf.hover, 'Hover Documentation')
@@ -482,9 +493,8 @@ end
 --  the `settings` field of the server config. You must look up that documentation yourself.
 local servers = {
   clangd = {},
-  -- gopls = {},
+  gopls = {},
   pyright = {},
-  -- rust_analyzer = {},
   tsserver = {},
 
   lua_ls = {
@@ -528,20 +538,25 @@ local rt = require("rust-tools")
 rt.setup({
   server = {
     on_attach = function(_, bufnr)
+      on_attach(_, bufnr)
       -- Hover actions TODO: overlapping with treesitter and maybe cmp?
       vim.keymap.set("n", "<C-space>", rt.hover_actions.hover_actions, { buffer = bufnr })
       -- Code action groups TODO: overlapping with treesitter
       vim.keymap.set("n", "<Leader>a", rt.code_action_group.code_action_group, { buffer = bufnr })
     end,
+    capabilities=capabilities,
   },
 })
 
 -- nvim-cmp setup
-local cmp = require 'cmp'
-local luasnip = require 'luasnip'
+local cmp_autopairs = require('nvim-autopairs.completion.cmp')
+local cmp = require('cmp')
+local luasnip = require('luasnip')
 local lspkind = require('lspkind')
 
 luasnip.config.setup {}
+
+cmp.event:on('confirm_done', cmp_autopairs.on_confirm_done())
 
 cmp.setup {
   formatting = {
