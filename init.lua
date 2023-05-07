@@ -30,8 +30,11 @@ require('lazy').setup({
   -- Detect tabstop and shiftwidth automatically
   'tpope/vim-sleuth',
 
-  -- File Explorer
-  { 'nvim-tree/nvim-tree.lua', dependencies = { 'nvim-tree/nvim-web-devicons' }, opts = {}, },
+  { -- File explorer
+    'nvim-tree/nvim-tree.lua', -- TODO: learn
+    dependencies = { 'nvim-tree/nvim-web-devicons' },
+    opts = {},
+  },
 
   { -- Allow for jk/kj/jj escaping more cleanly 
     'nvim-zh/better-escape.vim',
@@ -51,8 +54,14 @@ require('lazy').setup({
   },
 
   { -- More sensible word movement
-    -- TODO: doesn't work
     'chrisgrieser/nvim-spider',
+    config = function()
+      local sp = require('spider')
+      vim.keymap.set({"n", "o", "x"}, "w",  function() sp.motion("w") end,  { desc = "Spider-w" })
+      vim.keymap.set({"n", "o", "x"}, "e",  function() sp.motion("e") end,  { desc = "Spider-e" })
+      vim.keymap.set({"n", "o", "x"}, "b",  function() sp.motion("b") end,  { desc = "Spider-b" })
+      vim.keymap.set({"n", "o", "x"}, "ge",  function() sp.motion("ge") end,  { desc = "Spider-ge" })
+    end
   },
 
   { -- LSP Configuration & Plugins
@@ -63,7 +72,6 @@ require('lazy').setup({
       'williamboman/mason-lspconfig.nvim',
 
       -- Useful status updates for LSP
-      -- NOTE: `opts = {}` is the same as calling `require('fidget').setup({})`
       { 'j-hui/fidget.nvim', opts = {} },
 
       -- Additional lua configuration, makes nvim stuff amazing!
@@ -86,7 +94,8 @@ require('lazy').setup({
     dependencies = { 'hrsh7th/cmp-nvim-lsp', 'L3MON4D3/LuaSnip', 'saadparwaiz1/cmp_luasnip', 'onsails/lspkind.nvim' },
   },
 
-  { -- Autopairs // TODO: add <>
+  { -- Autopairs
+    -- TODO: add <>
     'windwp/nvim-autopairs',
     dependencies='hrsh7th/nvim-cmp',
     opts={},
@@ -108,7 +117,7 @@ require('lazy').setup({
     },
   },
 
-  { -- Excellent theme
+  { -- Decent theme, but no good lightspeed integration.
     'folke/tokyonight.nvim',
     enabled=false,
     priority=1000,
@@ -117,10 +126,11 @@ require('lazy').setup({
     end,
   },
 
-  { -- Alternate theme
+  { -- Cute pastels theme
     'catppuccin/nvim',
     name = 'catppuccin',
     priority = 1000,
+    enabled = true,
     config = function()
       require("catppuccin").setup({
         term_colors=true,
@@ -129,6 +139,15 @@ require('lazy').setup({
         }
       })
       vim.cmd.colorscheme 'catppuccin'
+    end,
+  },
+
+  { -- Green-based theme
+    'sainhe/everforest',
+    priority = 1000,
+    enabled = false,
+    config = function()
+      vim.cmd.colorscheme 'everforest'
     end,
   },
 
@@ -152,7 +171,6 @@ require('lazy').setup({
     version = 'v3',
     opts = {
       options = {
-        -- separator_style = 'slant',
         diagnostics = "nvim_lsp",
       },
     },
@@ -160,8 +178,6 @@ require('lazy').setup({
 
   { -- Add indentation guides even on blank lines
     'lukas-reineke/indent-blankline.nvim',
-    -- Enable `lukas-reineke/indent-blankline.nvim`
-    -- See `:help indent_blankline.txt`
     opts = {
       -- char = '┊',
       show_trailing_blankline_indent = false,
@@ -301,7 +317,7 @@ wk.register({
   -- NvimTree
   ["<Leader>e"] = {"<cmd>NvimTreeToggle<cr>", "Toggle file [e]xplorer"},
   -- Meta
-  ["<Leader>q"] = {"<cmd>e $MYVIMRC<cr>", "Edit nvim conf"},
+  -- ["<Leader>q"] = {"<cmd>e $MYVIMRC<cr>", "Edit nvim conf"}, Setup is basically fine now.
   -- Window Movement
   ["<Leader>h"] = {"<C-W>h", "Move to left window"},
   ["<Leader>j"] = {"<C-W>j", "Move down"},
@@ -323,6 +339,7 @@ vim.api.nvim_create_autocmd('TextYankPost', {
 
 -- [[ Configure Telescope ]]
 -- See `:help telescope` and `:help telescope.setup()`
+-- TODO: set up telescope exiting behavior
 require('telescope').setup {
   defaults = {
     mappings = {
@@ -580,10 +597,9 @@ cmp.setup {
       select = true,
     },
     ['<Tab>'] = cmp.mapping(function(fallback)
-      -- TODO: figure out how to cancel snippet so tab works better
       if cmp.visible() then
         cmp.select_next_item()
-      elseif luasnip.expand_or_jumpable() then
+      elseif luasnip.expand_or_locally_jumpable() then -- locally should limit to when we're in the snippet.
         luasnip.expand_or_jump()
       else
         fallback()
