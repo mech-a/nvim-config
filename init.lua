@@ -91,7 +91,7 @@ require('lazy').setup({
   { -- Autocompletion
     'hrsh7th/nvim-cmp',
     -- TODO: understand what snippets are and which engines are there
-    dependencies = { 'hrsh7th/cmp-nvim-lsp', 'L3MON4D3/LuaSnip', 'saadparwaiz1/cmp_luasnip', 'onsails/lspkind.nvim' },
+    dependencies = { 'hrsh7th/cmp-nvim-lsp', 'L3MON4D3/LuaSnip', 'saadparwaiz1/cmp_luasnip', 'onsails/lspkind.nvim', 'rafamadriz/friendly-snippets' },
   },
 
   { -- Autopairs
@@ -571,6 +571,7 @@ local cmp = require('cmp')
 local luasnip = require('luasnip')
 local lspkind = require('lspkind')
 
+require("luasnip.loaders.from_vscode").lazy_load()
 luasnip.config.setup {}
 
 cmp.event:on('confirm_done', cmp_autopairs.on_confirm_done())
