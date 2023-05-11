@@ -57,10 +57,10 @@ require('lazy').setup({
     'chrisgrieser/nvim-spider',
     config = function()
       local sp = require('spider')
-      vim.keymap.set({"n", "o", "x"}, "w",  function() sp.motion("w") end,  { desc = "Spider-w" })
-      vim.keymap.set({"n", "o", "x"}, "e",  function() sp.motion("e") end,  { desc = "Spider-e" })
-      vim.keymap.set({"n", "o", "x"}, "b",  function() sp.motion("b") end,  { desc = "Spider-b" })
-      vim.keymap.set({"n", "o", "x"}, "ge",  function() sp.motion("ge") end,  { desc = "Spider-ge" })
+      vim.keymap.set({"n", "o", "x"}, "w",  function() sp.motion("w") end)
+      vim.keymap.set({"n", "o", "x"}, "e",  function() sp.motion("e") end)
+      vim.keymap.set({"n", "o", "x"}, "b",  function() sp.motion("b") end)
+      vim.keymap.set({"n", "o", "x"}, "ge",  function() sp.motion("ge") end)
     end
   },
 
@@ -194,7 +194,7 @@ require('lazy').setup({
   { 'numToStr/Comment.nvim', opts = {} }, -- TODO: do insert mappings for commenting
 
   -- Fuzzy Finder (files, lsp, etc)
-  { 'nvim-telescope/telescope.nvim', tag='0.1.1', dependencies = { 'nvim-lua/plenary.nvim' } },
+  { 'nvim-telescope/telescope.nvim', branch='0.1.x', dependencies = { 'nvim-lua/plenary.nvim' } },
 
   -- Fuzzy Finder Algorithm which requires local dependencies to be built.
   -- Only load if `make` is available. Make sure you have the system
@@ -219,7 +219,6 @@ require('lazy').setup({
 
   { -- Quick documentation
     'danymat/neogen',
-    lazy=true,
     dependencies='nvim-treesitter/nvim-treesitter',
     config = function()
       require('neogen').setup({
@@ -600,7 +599,7 @@ cmp.setup {
     ['<Tab>'] = cmp.mapping(function(fallback)
       if cmp.visible() then
         cmp.select_next_item()
-      elseif luasnip.expand_or_locally_jumpable() then -- locally should limit to when we're in the snippet.
+      elseif luasnip.expand_or_locally_jumpable() then
         luasnip.expand_or_jump()
       else
         fallback()
@@ -609,7 +608,7 @@ cmp.setup {
     ['<S-Tab>'] = cmp.mapping(function(fallback)
       if cmp.visible() then
         cmp.select_prev_item()
-      elseif luasnip.jumpable(-1) then
+      elseif luasnip.locally_jumpable(-1) then
         luasnip.jump(-1)
       else
         fallback()
