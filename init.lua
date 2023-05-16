@@ -322,6 +322,7 @@ wk.register({
   ["<Leader>j"] = {"<C-W>j", "Move down"},
   ["<Leader>k"] = {"<C-W>k", "Move up"},
   ["<Leader>l"] = {"<C-W>l", "Move right"},
+  ["5"] = {"i<cr><esc>", "Split line"}, -- TODO: jump back to mark
 })
 
 
