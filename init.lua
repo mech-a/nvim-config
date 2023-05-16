@@ -24,8 +24,8 @@ vim.opt.rtp:prepend(lazypath)
 -- Plugin Setup
 require('lazy').setup({
   -- Git related plugins
-  { 'tpope/vim-fugitive', lazy=true, },
-  { 'tpope/vim-rhubarb', lazy=true, },
+  { 'tpope/vim-fugitive', lazy = true },
+  { 'tpope/vim-rhubarb', lazy = true },
 
   -- Detect tabstop and shiftwidth automatically
   'tpope/vim-sleuth',
@@ -36,32 +36,40 @@ require('lazy').setup({
     opts = {},
   },
 
-  { -- Allow for jk/kj/jj escaping more cleanly 
+  { -- Allow for jk/kj/jj escaping more cleanly
     'nvim-zh/better-escape.vim',
     config = function()
       vim.go.better_escape_shortcut = 'jk'
     end,
   },
 
-  { -- Very fast movement 
+  { -- Very fast movement
     -- s__ for forward, S__ for backwards, and gs__ for diff windows
     -- TODO: setup tokyonight highlight colors, can't see very well
     'ggandor/leap.nvim',
     dependencies = { 'tpope/vim-repeat' },
     config = function()
       require('leap').add_default_mappings()
-    end
+    end,
   },
 
   { -- More sensible word movement
     'chrisgrieser/nvim-spider',
     config = function()
-      local sp = require('spider')
-      vim.keymap.set({"n", "o", "x"}, "w",  function() sp.motion("w") end)
-      vim.keymap.set({"n", "o", "x"}, "e",  function() sp.motion("e") end)
-      vim.keymap.set({"n", "o", "x"}, "b",  function() sp.motion("b") end)
-      vim.keymap.set({"n", "o", "x"}, "ge",  function() sp.motion("ge") end)
-    end
+      local sp = require 'spider'
+      vim.keymap.set({ 'n', 'o', 'x' }, 'w', function()
+        sp.motion 'w'
+      end)
+      vim.keymap.set({ 'n', 'o', 'x' }, 'e', function()
+        sp.motion 'e'
+      end)
+      vim.keymap.set({ 'n', 'o', 'x' }, 'b', function()
+        sp.motion 'b'
+      end)
+      vim.keymap.set({ 'n', 'o', 'x' }, 'ge', function()
+        sp.motion 'ge'
+      end)
+    end,
   },
 
   { -- LSP Configuration & Plugins
@@ -85,7 +93,7 @@ require('lazy').setup({
   },
 
   { -- Rust Tooling
-    'simrat39/rust-tools.nvim'
+    'simrat39/rust-tools.nvim',
   },
 
   { -- Autocompletion
@@ -97,8 +105,8 @@ require('lazy').setup({
   { -- Autopairs
     -- TODO: add <>
     'windwp/nvim-autopairs',
-    dependencies='hrsh7th/nvim-cmp',
-    opts={},
+    dependencies = 'hrsh7th/nvim-cmp',
+    opts = {},
   },
 
   -- Useful plugin to show you pending keybinds.
@@ -119,8 +127,8 @@ require('lazy').setup({
 
   { -- Decent theme, but no good lightspeed integration.
     'folke/tokyonight.nvim',
-    enabled=false,
-    priority=1000,
+    enabled = false,
+    priority = 1000,
     config = function()
       vim.cmd.colorscheme 'tokyonight-night'
     end,
@@ -132,12 +140,12 @@ require('lazy').setup({
     priority = 1000,
     enabled = true,
     config = function()
-      require("catppuccin").setup({
-        term_colors=true,
+      require('catppuccin').setup {
+        term_colors = true,
         dim_inactive = {
-          enabled=true,
-        }
-      })
+          enabled = true,
+        },
+      }
       vim.cmd.colorscheme 'catppuccin'
     end,
   },
@@ -158,20 +166,20 @@ require('lazy').setup({
       options = {
         -- icons_enabled = false,
         theme = 'auto',
-        disabled_filetypes = { 'lazy', 'NvimTree', },
+        disabled_filetypes = { 'lazy', 'NvimTree' },
         component_separators = '|',
         section_separators = '',
       },
     },
   },
 
-  { -- Buffer line 
+  { -- Buffer line
     'akinsho/bufferline.nvim',
     -- tag = 'v3.5.0',
     version = 'v3',
     opts = {
       options = {
-        diagnostics = "nvim_lsp",
+        diagnostics = 'nvim_lsp',
       },
     },
   },
@@ -184,17 +192,17 @@ require('lazy').setup({
     },
   },
 
-  { -- Todo, Note, Fix, Warning, Perf, Hack highlighting 
+  { -- Todo, Note, Fix, Warning, Perf, Hack highlighting
     'folke/todo-comments.nvim',
     dependencies = { 'nvim-lua/plenary.nvim' },
-    opts = { },
+    opts = {},
   },
 
   -- "gc" to comment visual regions/lines
   { 'numToStr/Comment.nvim', opts = {} }, -- TODO: do insert mappings for commenting
 
   -- Fuzzy Finder (files, lsp, etc)
-  { 'nvim-telescope/telescope.nvim', branch='0.1.x', dependencies = { 'nvim-lua/plenary.nvim' } },
+  { 'nvim-telescope/telescope.nvim', branch = '0.1.x', dependencies = { 'nvim-lua/plenary.nvim' } },
 
   -- Fuzzy Finder Algorithm which requires local dependencies to be built.
   -- Only load if `make` is available. Make sure you have the system
@@ -219,13 +227,13 @@ require('lazy').setup({
 
   { -- Quick documentation
     'danymat/neogen',
-    dependencies='nvim-treesitter/nvim-treesitter',
+    dependencies = 'nvim-treesitter/nvim-treesitter',
     config = function()
-      require('neogen').setup({
-        snippet_engine='luasnip',
-      })
-      vim.keymap.set('n', '<leader>d', require('neogen').generate, { desc='Generate [d]ocumentation' })
-    end
+      require('neogen').setup {
+        snippet_engine = 'luasnip',
+      }
+      vim.keymap.set('n', '<leader>d', require('neogen').generate, { desc = 'Generate [d]ocumentation' })
+    end,
   },
 
   -- NOTE: Next Step on Your Neovim Journey: Add/Configure additional "plugins" for kickstart
@@ -295,12 +303,12 @@ vim.o.smartindent = true -- Autoindent is true by default
 vim.o.wrap = true
 
 -- UI
-vim.o.scrolloff = 7         -- Set 7 lines to the cursor - when moving vertically using j/k
-vim.o.cmdheight = 1         -- Height of the command bar
-vim.o.lazyredraw = true     -- Don't redraw while executing macros (performance)
+vim.o.scrolloff = 7 -- Set 7 lines to the cursor - when moving vertically using j/k
+vim.o.cmdheight = 1 -- Height of the command bar
+vim.o.lazyredraw = true -- Don't redraw while executing macros (performance)
 
 -- For creating most keybinds
-local wk = require('which-key')
+local wk = require 'which-key'
 
 -- [[ Basic Keymaps ]]
 
@@ -312,19 +320,18 @@ vim.keymap.set({ 'n', 'v' }, '<Space>', '<Nop>', { silent = true })
 vim.keymap.set('n', 'k', "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
 vim.keymap.set('n', 'j', "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
 
-wk.register({
+wk.register {
   -- NvimTree
-  ["<Leader>e"] = {"<cmd>NvimTreeToggle<cr>", "Toggle file [e]xplorer"},
+  ['<Leader>e'] = { '<cmd>NvimTreeToggle<cr>', 'Toggle file [e]xplorer' },
   -- Meta
   -- ["<Leader>q"] = {"<cmd>e $MYVIMRC<cr>", "Edit nvim conf"}, Setup is basically fine now.
   -- Window Movement
-  ["<Leader>h"] = {"<C-W>h", "Move to left window"},
-  ["<Leader>j"] = {"<C-W>j", "Move down"},
-  ["<Leader>k"] = {"<C-W>k", "Move up"},
-  ["<Leader>l"] = {"<C-W>l", "Move right"},
-  ["5"] = {"i<cr><esc>", "Split line"}, -- TODO: jump back to mark
-})
-
+  ['<Leader>h'] = { '<C-W>h', 'Move to left window' },
+  ['<Leader>j'] = { '<C-W>j', 'Move down' },
+  ['<Leader>k'] = { '<C-W>k', 'Move up' },
+  ['<Leader>l'] = { '<C-W>l', 'Move right' },
+  ['5'] = { 'i<cr><esc>', 'Split line' }, -- TODO: jump back to mark
+}
 
 -- [[ Highlight on yank ]]
 -- See `:help vim.highlight.on_yank()`
@@ -354,29 +361,30 @@ require('telescope').setup {
 -- Enable telescope fzf native, if installed
 pcall(require('telescope').load_extension, 'fzf')
 
-
-local tb = require('telescope.builtin')
+local tb = require 'telescope.builtin'
 wk.register({
-  ["?"] = { tb.oldfiles, "Find recently opened files" },
-  ["/"] = { function()
-   tb.current_buffer_fuzzy_find(require('telescope.themes').get_dropdown {
-      winblend = 10,
-      previewer = false,
-    })
-    end, "Search in current buffer",
+  ['?'] = { tb.oldfiles, 'Find recently opened files' },
+  ['/'] = {
+    function()
+      tb.current_buffer_fuzzy_find(require('telescope.themes').get_dropdown {
+        winblend = 10,
+        previewer = false,
+      })
+    end,
+    'Search in current buffer',
   },
 
   s = {
-    name = "+Search",
-    f = { tb.find_files, "Search [f]iles" },
-    b = { tb.buffers, "Search for [b]uffer" },
-    h = { tb.help_tags, "Search nvim [h]elp" },
-    w = { tb.grep_string, "Search current [w]ord" },
-    g = { tb.live_grep, "Search by live [g]rep" },
-    x = { tb.diagnostics, "Search LSP diagnostics" },
-    t = { "<cmd>TodoTelescope keywords=TODO,fix<cr>", "Search [t]odos"},
+    name = '+Search',
+    f = { tb.find_files, 'Search [f]iles' },
+    b = { tb.buffers, 'Search for [b]uffer' },
+    h = { tb.help_tags, 'Search nvim [h]elp' },
+    w = { tb.grep_string, 'Search current [w]ord' },
+    g = { tb.live_grep, 'Search by live [g]rep' },
+    x = { tb.diagnostics, 'Search LSP diagnostics' },
+    t = { '<cmd>TodoTelescope keywords=TODO,fix<cr>', 'Search [t]odos' },
   },
-}, { prefix = "<leader>" })
+}, { prefix = '<leader>' })
 
 -- [[ Configure Treesitter ]]
 -- See `:help nvim-treesitter`
@@ -384,7 +392,7 @@ require('nvim-treesitter.configs').setup {
   -- Add languages to be installed here that you want installed for treesitter
   ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'rust', 'tsx', 'typescript', 'help', 'vim' },
 
-  -- Autoinstall languages that are not installed 
+  -- Autoinstall languages that are not installed
   auto_install = true,
 
   highlight = { enable = true },
@@ -445,10 +453,10 @@ require('nvim-treesitter.configs').setup {
 }
 
 -- Diagnostic keymaps
-vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, { desc = "Go to previous diagnostic message" })
-vim.keymap.set('n', ']d', vim.diagnostic.goto_next, { desc = "Go to next diagnostic message" })
-vim.keymap.set('n', '<leader>x', vim.diagnostic.open_float, { desc = "Open floating diagnostic message" })
-vim.keymap.set('n', '<leader>X', vim.diagnostic.setloclist, { desc = "Open diagnostics list" })
+vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, { desc = 'Go to previous diagnostic message' })
+vim.keymap.set('n', ']d', vim.diagnostic.goto_next, { desc = 'Go to next diagnostic message' })
+vim.keymap.set('n', '<leader>x', vim.diagnostic.open_float, { desc = 'Open floating diagnostic message' })
+vim.keymap.set('n', '<leader>X', vim.diagnostic.setloclist, { desc = 'Open diagnostics list' })
 
 -- LSP settings.
 --  This function gets run when an LSP connects to a particular buffer.
@@ -468,30 +476,34 @@ local on_attach = function(_, bufnr)
   end
 
   wk.register({
-    ["<leader>rn"] = { vim.lsp.buf.rename, "LSP: [R]e[n]ame object" },
-    ["<leader>ca"] = { vim.lsp.buf.code_action, "LSP: [C]ode [A]ction" },
-    ["<leader>sr"] = { tb.lsp_references, "LSP: Search under-cursor [r]eferences" },
-    ["<leader>sd"] = { tb.lsp_document_symbols, "LSP: Search [d]ocument symbols" },
-    ["<leader>sw"] = { tb.lsp_dynamic_workspace_symbols, "LSP: Search [w]orkspace symbols" },
-    ["<leader>y"]  = { "<cmd>SymbolsOutline<cr>", "LSP: Toggle s[y]mbol tree" },
-    ["<leader>D"]  = { vim.lsp.buf.type_definition, "LSP: Type [D]efinition" },
+    ['<leader>rn'] = { vim.lsp.buf.rename, 'LSP: [R]e[n]ame object' },
+    ['<leader>ca'] = { vim.lsp.buf.code_action, 'LSP: [C]ode [A]ction' },
+    ['<leader>sr'] = { tb.lsp_references, 'LSP: Search under-cursor [r]eferences' },
+    ['<leader>sd'] = { tb.lsp_document_symbols, 'LSP: Search [d]ocument symbols' },
+    ['<leader>sw'] = { tb.lsp_dynamic_workspace_symbols, 'LSP: Search [w]orkspace symbols' },
+    ['<leader>y'] = { '<cmd>SymbolsOutline<cr>', 'LSP: Toggle s[y]mbol tree' },
+    ['<leader>D'] = { vim.lsp.buf.type_definition, 'LSP: Type [D]efinition' },
     g = {
       d = { vim.lsp.buf.definition, 'LSP: Goto [d]efinition' },
       i = { vim.lsp.buf.implementation, 'LSP: Goto [i]mplementation' },
       D = { vim.lsp.buf.declaration, 'LSP: Goto [D}eclaration' },
     },
-    ["<leader>w"] = {
-      name = "+LSP: Workspace",
-      a = { vim.lsp.buf.add_workspace_folder, "LSP: Workspace [a]dd folder" },
-      r = { vim.lsp.buf.remove_workspace_folder, "LSP: Workspace [r]emove folder" },
-      l = { function() print(vim.inspect(vim.lsp.buf.list_workspace_folders())) end, "LSP: Workspace [l]ist folders" },
+    ['<leader>w'] = {
+      name = '+LSP: Workspace',
+      a = { vim.lsp.buf.add_workspace_folder, 'LSP: Workspace [a]dd folder' },
+      r = { vim.lsp.buf.remove_workspace_folder, 'LSP: Workspace [r]emove folder' },
+      l = {
+        function()
+          print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
+        end,
+        'LSP: Workspace [l]ist folders',
+      },
     },
-
-  }, {buffer = bufnr})
+  }, { buffer = bufnr })
 
   wk.register({
-    [" "] = { tb.lsp_document_symbols, "LSP: Search document symbols" },
-  }, {prefix="<leader>"})
+    [' '] = { tb.lsp_document_symbols, 'LSP: Search document symbols' },
+  }, { prefix = '<leader>' })
 
   -- See `:help K` for why this keymap
   nmap('K', vim.lsp.buf.hover, 'Hover Documentation')
@@ -549,40 +561,40 @@ mason_lspconfig.setup_handlers {
   end,
 }
 
--- Seperate Rust Tools 
-local rt = require("rust-tools")
+-- Seperate Rust Tools
+local rt = require 'rust-tools'
 
-rt.setup({
+rt.setup {
   server = {
     on_attach = function(_, bufnr)
       on_attach(_, bufnr)
       -- Hover actions TODO: overlapping with treesitter and maybe cmp?
-      vim.keymap.set("n", "<C-space>", rt.hover_actions.hover_actions, { buffer = bufnr })
+      vim.keymap.set('n', '<C-space>', rt.hover_actions.hover_actions, { buffer = bufnr })
       -- Code action groups TODO: overlapping with treesitter
-      vim.keymap.set("n", "<Leader>a", rt.code_action_group.code_action_group, { buffer = bufnr })
+      vim.keymap.set('n', '<Leader>a', rt.code_action_group.code_action_group, { buffer = bufnr })
     end,
-    capabilities=capabilities,
+    capabilities = capabilities,
   },
-})
+}
 
 -- nvim-cmp setup
-local cmp_autopairs = require('nvim-autopairs.completion.cmp')
-local cmp = require('cmp')
-local luasnip = require('luasnip')
-local lspkind = require('lspkind')
+local cmp_autopairs = require 'nvim-autopairs.completion.cmp'
+local cmp = require 'cmp'
+local luasnip = require 'luasnip'
+local lspkind = require 'lspkind'
 
-require("luasnip.loaders.from_vscode").lazy_load()
+require('luasnip.loaders.from_vscode').lazy_load()
 luasnip.config.setup {}
 
 cmp.event:on('confirm_done', cmp_autopairs.on_confirm_done())
 
 cmp.setup {
   formatting = {
-    format = lspkind.cmp_format({
-      mode = "symbol_text",
+    format = lspkind.cmp_format {
+      mode = 'symbol_text',
       maxwidth = 50,
-      ellipsis_char = "…",
-    })
+      ellipsis_char = '…',
+    },
   },
   snippet = {
     expand = function(args)
