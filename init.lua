@@ -30,8 +30,16 @@ require('lazy').setup({
   -- Detect tabstop and shiftwidth automatically
   'tpope/vim-sleuth',
 
+
+  { -- Buffer-based file explorer
+    'stevearc/oil.nvim',
+    opts = {},
+    dependencies = { 'nvim-tree/nvim-web-devicons' }
+  },
+
   { -- File explorer
     'nvim-tree/nvim-tree.lua', -- TODO: learn
+    enabled=false,
     dependencies = { 'nvim-tree/nvim-web-devicons' },
     opts = {},
   },
@@ -322,7 +330,9 @@ vim.keymap.set('n', 'j', "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = tr
 
 wk.register {
   -- NvimTree
-  ['<Leader>e'] = { '<cmd>NvimTreeToggle<cr>', 'Toggle file [e]xplorer' },
+  -- ['<Leader>e'] = { '<cmd>NvimTreeToggle<cr>', 'Toggle file [e]xplorer' },
+  -- Oil
+  ['<Leader>e'] = { require('oil').open_float, 'Toggle file [e]xplorer' },
   -- Meta
   -- ["<Leader>q"] = {"<cmd>e $MYVIMRC<cr>", "Edit nvim conf"}, Setup is basically fine now.
   -- Window Movement
